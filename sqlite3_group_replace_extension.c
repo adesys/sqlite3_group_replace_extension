@@ -8,7 +8,7 @@
  *     gcc -g -fPIC -shared ./sqlite3_group_replace_extension.c  -o sqlite3_group_replace_extension.so
  *
  * Load the extension:
- *     select load_extension('./sqlite3_concat.o');
+ *     select load_extension('./sqlite3_group_replace_extension.so');
  *
  * Example:
  *     CREATE TABLE examples   (
@@ -55,7 +55,7 @@
 #include <string.h>
 // #include <assert.h>
 
-#include "sqlite3ext.h"
+#include <sqlite3ext.h>
 SQLITE_EXTENSION_INIT1
 typedef struct SCtx SCtx;
 struct SCtx {

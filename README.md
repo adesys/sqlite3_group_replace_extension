@@ -18,7 +18,7 @@ Compile the code:
 
 Load the extension:
 -----------------
-    select load_extension('./sqlite3_concat.o');
+    select load_extension('./sqlite3_group_replace_extension.so');
 
 Example:
 -----------------
