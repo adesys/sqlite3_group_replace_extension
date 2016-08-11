@@ -3,7 +3,7 @@ Group replace function for sqlite3.
 ====================================
 This aggregate function works just like group_concat, but replaces key with value in a string.
 This can be used to make parameterized text with multiple parameters (key) which will be
-replaced with the corresponding value using this aggregation funtion.
+replaced with the corresponding value using this aggregation function.
 
 Usage:
 -----------------
@@ -42,6 +42,8 @@ Example:
         ON DELETE CASCADE
         ON UPDATE CASCADE
     );
+
+    CREATE INDEX "key_values.example_id_idx" ON "key_values"("example_id");
 
     -- lets insert some data
     -- first example has two parameters

@@ -2,7 +2,7 @@
  * Group replace function.
  * This aggregate function works just like group_concat, but replaces key with value in a string.
  * This can be used to make parameterized text with multiple parameters (key) which will be
- * replaced with the corresponding value using this aggregation funtion.
+ * replaced with the corresponding value using this aggregation function.
  *
  * Compile the code:
  *     gcc -g -fPIC -shared ./sqlite3_group_replace_extension.c  -o sqlite3_group_replace_extension.so
@@ -10,57 +10,21 @@
  * Load the extension:
  *     select load_extension('./sqlite3_group_replace_extension.so');
  *
- * Example:
- *     CREATE TABLE examples   (
- *       "example_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
- *       "text"       TEXT
- *     );
- *     CREATE TABLE key_values (
- *      "key_value_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
- *      "key"          VARCHAR,
- *      "value"        VARCHAR,
- *      "example_id"   INTEGER,
- *      CONSTRAINT "fk_example_id"
- *         FOREIGN KEY("example_id")
- *         REFERENCES "examples"("example_id")
- *         ON DELETE CASCADE
- *         ON UPDATE CASCADE
- *     );
+ * Usage: see README.md
  *
- *     INSERT INTO "examples" ("text") VALUES ("Hello, my name is NAME, i'm AGE years old");
- *     INSERT INTO key_values ("example_id", "key", "value") VALUES (1,'NAME', 'Anthony');
- *     INSERT INTO key_values ("example_id", "key", "value") VALUES (1,'AGE', '25');
- *     INSERT INTO "examples" ("text") VALUES ("I have a dog named %dog, ... well thats all folks!");
- *     INSERT INTO key_values ("example_id", "key", "value") VALUES (2,'%dog', 'Nolan');
- *     INSERT INTO "examples" ("text") VALUES ("this example contains two keys, %key and %key");
- *     INSERT INTO key_values ("example_id", "key", "value") VALUES (3,'%key', 'value');
- *
- *     SELECT load_extension('./sqlite3_group_replace_extension.so');
- *
- *     -- execute the query below
- *     SELECT group_replace(e.text, kv.key, kv. value) FROM examples e
- *     JOIN key_values kv on kv.example_id=e.example_id
- *     GROUP BY e.example_id;
- *
- *     -- this should result in:
- *     -- Hello, my name is Anthony, i'm 25 years old
- *     -- I have a dog named Nolan, ... well thats all folks!
- *     -- this example contains two keys, value and value
- *
+ * Licence: LGPL
  * Author: Anthony Lansbergen
  **/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <assert.h>
 
 #include <sqlite3ext.h>
 SQLITE_EXTENSION_INIT1
 typedef struct SCtx SCtx;
 struct SCtx {
     int rowCnt;
-//    int charCnt;
     char *result;
 };
 // ------------------------------------------------------------------------------------------------
