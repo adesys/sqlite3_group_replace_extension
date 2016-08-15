@@ -36,13 +36,13 @@ static char* replace_one(char* input, char* startPointSearch, char* key, char* v
     }
     else{// found a match, lets replace key with value
         int offset = 0;
-        char* newResult  = malloc(strlen(input) - strlen(key) + strlen(value) +1); // calculate new string size
+        char* newResult  = sqlite3_malloc(strlen(input) - strlen(key) + strlen(value) +1); // calculate new string size
         newResult[0]='\0'; // initialize to empty string
         offset = (int)(match-input);
         strncat(newResult, input, (int)offset);  // append all text from left side of the key
         strcat (newResult, value);                 // append the value
         strcat(newResult, match+strlen(key));      // append remaining text on right side of the key
-        free(input);                               // free the original data
+        sqlite3_free(input);                               // free the original data
         input = newResult; // add the new data to the result
         return replace_one(input, input+offset+strlen(value),key,value);
     }
@@ -51,18 +51,27 @@ static char* replace_one(char* input, char* startPointSearch, char* key, char* v
 // function called for each row during the aggreagation
 static void group_replace_step(sqlite3_context* ctx, int argc, sqlite3_value**argv) {
     SCtx *p = (SCtx *) sqlite3_aggregate_context(ctx, sizeof(*p));
+    if(sqlite3_value_type(argv[0]) == SQLITE_TEXT &&
+       sqlite3_value_type(argv[1]) == SQLITE_TEXT &&
+       sqlite3_value_type(argv[2]) == SQLITE_TEXT  ){
 
-    char *startString = sqlite3_value_text(argv[0]);
-    char *key         = sqlite3_value_text(argv[1]);
-    char *value       = sqlite3_value_text(argv[2]);
-    // start with the init string
-    if (!p->result) {
-        p->result = malloc(strlen(startString) + 1);
-        strcpy(p->result, startString);
+        char *startString = sqlite3_value_text(argv[0]);
+        char *key         = sqlite3_value_text(argv[1]);
+        char *value       = sqlite3_value_text(argv[2]);
+
+        // start with the init string
+        if (!p->result) {
+            p->result = sqlite3_malloc(strlen(startString) + 1);
+            strcpy(p->result, startString);
+        }
+        // lets replace all keys with value
+        if(p->result != NULL && key != NULL && value != NULL){
+            p->result = replace_one(p->result, p->result, key, value);
+        }
     }
-    // lets replace all keys with value
-    if(p->result != NULL && key != NULL && value != NULL){
-        p->result = replace_one(p->result, p->result, key, value);
+    else{
+        char* message = "invalid parameter types, all three paramameters should be of type TEXT";
+        sqlite3_result_error(ctx, message, strlen(message));
     }
     p->rowCnt++;  // next row
 }
@@ -70,8 +79,9 @@ static void group_replace_step(sqlite3_context* ctx, int argc, sqlite3_value**ar
 // finalize the aggregation
 static void group_replace_final(sqlite3_context* ctx) {
     SCtx *p = (SCtx *) sqlite3_aggregate_context(ctx, sizeof(*p));
-    //  printf("Finally: %s\n", p->result);
-    sqlite3_result_text(ctx,  p->result, strlen(p->result), NULL);
+    if(p->result){
+        sqlite3_result_text(ctx,  p->result, strlen(p->result), sqlite3_free);
+    }
 }
 // register the function to sqlite
 int sqlite3_extension_init(
