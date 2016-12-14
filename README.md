@@ -14,11 +14,11 @@ example:
 
 Compile the code:
 -----------------
-    gcc -g -fPIC -shared ./sqlite3_group_replace_extension.c  -o sqlite3_group_replace_extension.so
+    gcc -g -fPIC -shared ./group_replace.c  -o group_replace.so
 
 Load the extension:
 -----------------
-    select load_extension('./sqlite3_group_replace_extension.so');
+    .load ./group_replace
 
 Example:
 -----------------
