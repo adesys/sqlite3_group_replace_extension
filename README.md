@@ -20,10 +20,10 @@ Load the extension:
 -----------------
     .load ./group_replace
 
-Example:
+Examples:
 -----------------
     -- in this example we create a table wich contains parameterized texts
-    -- a text can contain as much parameters as you want,
+    -- a text can contain as much parameters as you want
     CREATE TABLE log_texts   (
       "log_text_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       "text"       TEXT
